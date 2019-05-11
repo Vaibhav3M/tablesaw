@@ -45,7 +45,7 @@ public class LongColumnType extends AbstractColumnType {
     }
 
     public static boolean isMissingValue(long value) {
-	return value == missingValueIndicator();
+        return value == missingValueIndicator();
     }
 
     public static long missingValueIndicator() {

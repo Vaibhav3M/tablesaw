@@ -42,7 +42,7 @@ public class IntColumnType extends AbstractColumnType {
     }
 
     public static boolean isMissingValue(int value) {
-	return value == missingValueIndicator();
+        return value == missingValueIndicator();
     }
 
     public static int missingValueIndicator() {
