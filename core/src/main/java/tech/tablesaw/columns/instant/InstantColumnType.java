@@ -4,7 +4,6 @@ import java.util.Map;
 
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.DateColumn;
-import tech.tablesaw.api.DateTimeColumn;
 import tech.tablesaw.api.InstantColumn;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.AbstractColumnType;
@@ -36,8 +35,8 @@ public class InstantColumnType extends AbstractColumnType {
     }
 
     @Override
-    public DateTimeColumn create(String name) {
-        return DateTimeColumn.create(name);
+    public InstantColumn create(String name) {
+        return InstantColumn.create(name);
     }
 
     @Override
