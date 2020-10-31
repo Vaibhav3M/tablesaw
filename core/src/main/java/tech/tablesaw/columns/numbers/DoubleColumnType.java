@@ -1,9 +1,16 @@
 package tech.tablesaw.columns.numbers;
 
+import java.util.Map;
+
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.DoubleColumn;
+import tech.tablesaw.api.Table;
 import tech.tablesaw.columns.AbstractColumnType;
+import tech.tablesaw.columns.Column;
+import tech.tablesaw.index.DoubleIndex;
+import tech.tablesaw.index.Index;
 import tech.tablesaw.io.ReadOptions;
+import tech.tablesaw.selection.Selection;
 
 public class DoubleColumnType extends AbstractColumnType {
 
@@ -42,4 +49,31 @@ public class DoubleColumnType extends AbstractColumnType {
     public static double missingValueIndicator() {
         return Double.NaN;
     }
+    
+    
+    @Override
+    public Selection getRowBitMapOneCol(Map<Column<?>, Index> columnIndexMap, int ri, Column<?> column,
+			Column<?> table1Column) {
+		Selection rowBitMapOneCol;
+		DoubleIndex index = (DoubleIndex) columnIndexMap.get(column);
+		DoubleColumn col1 = (DoubleColumn) table1Column;
+		double value = col1.getDouble(ri);
+		rowBitMapOneCol = index.get(value);
+		return rowBitMapOneCol;
+	}
+    
+    @Override
+	public Selection getRowBitMapOneCol(Table table2, Table result, int ri, String col2Name, Column<?> table1Column) {
+		Selection rowBitMapOneCol;
+		DoubleIndex index = new DoubleIndex(result.doubleColumn(col2Name));
+		DoubleColumn col2 = (DoubleColumn) table2.column(col2Name);
+		double value = col2.getDouble(ri);
+		rowBitMapOneCol = index.get(value);
+		return rowBitMapOneCol;
+	}
+    
+    @Override
+	public Index createIndex(Table table2, String col2Name) {
+		return new DoubleIndex(table2.doubleColumn(col2Name));
+	}
 }

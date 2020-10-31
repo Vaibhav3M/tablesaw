@@ -1,47 +1,20 @@
 package tech.tablesaw.joining;
 
-import com.google.common.collect.Streams;
-import tech.tablesaw.api.BooleanColumn;
-import tech.tablesaw.api.ColumnType;
-import tech.tablesaw.api.DateColumn;
-import tech.tablesaw.api.DateTimeColumn;
-import tech.tablesaw.api.DoubleColumn;
-import tech.tablesaw.api.FloatColumn;
-import tech.tablesaw.api.IntColumn;
-import tech.tablesaw.api.LongColumn;
-import tech.tablesaw.api.Row;
-import tech.tablesaw.api.ShortColumn;
-import tech.tablesaw.api.StringColumn;
-import tech.tablesaw.api.Table;
-import tech.tablesaw.api.TimeColumn;
-import tech.tablesaw.columns.Column;
-import tech.tablesaw.columns.booleans.BooleanColumnType;
-import tech.tablesaw.columns.dates.DateColumnType;
-import tech.tablesaw.columns.datetimes.DateTimeColumnType;
-import tech.tablesaw.columns.numbers.DoubleColumnType;
-import tech.tablesaw.columns.numbers.FloatColumnType;
-import tech.tablesaw.columns.numbers.IntColumnType;
-import tech.tablesaw.columns.numbers.LongColumnType;
-import tech.tablesaw.columns.numbers.ShortColumnType;
-import tech.tablesaw.columns.strings.StringColumnType;
-import tech.tablesaw.columns.strings.TextColumnType;
-import tech.tablesaw.columns.times.TimeColumnType;
-import tech.tablesaw.index.ByteIndex;
-import tech.tablesaw.index.DoubleIndex;
-import tech.tablesaw.index.FloatIndex;
-import tech.tablesaw.index.Index;
-import tech.tablesaw.index.IntIndex;
-import tech.tablesaw.index.LongIndex;
-import tech.tablesaw.index.ShortIndex;
-import tech.tablesaw.index.StringIndex;
-import tech.tablesaw.selection.BitmapBackedSelection;
-import tech.tablesaw.selection.Selection;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.google.common.collect.Streams;
+
+import tech.tablesaw.api.ColumnType;
+import tech.tablesaw.api.Row;
+import tech.tablesaw.api.Table;
+import tech.tablesaw.columns.Column;
+import tech.tablesaw.index.Index;
+import tech.tablesaw.selection.BitmapBackedSelection;
+import tech.tablesaw.selection.Selection;
 
 public class DataFrameJoiner {
 
@@ -203,62 +176,9 @@ public class DataFrameJoiner {
                 ColumnType type = table1Column.type();
                 // relies on both arrays, columns, and col2Names,
                 // having corresponding values at same index
-                Selection rowBitMapOneCol = null;
-                if (type instanceof DateColumnType) {
-                    IntIndex index = (IntIndex) columnIndexMap.get(column);
-                    DateColumn col1 = (DateColumn) table1Column;
-                    int value = col1.getIntInternal(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof DateTimeColumnType) {
-                    LongIndex index = (LongIndex) columnIndexMap.get(column);
-                    DateTimeColumn col1 = (DateTimeColumn) table1Column;
-                    long value = col1.getLongInternal(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof TimeColumnType) {
-                    IntIndex index = (IntIndex) columnIndexMap.get(column);
-                    TimeColumn col1 = (TimeColumn) table1Column;
-                    int value = col1.getIntInternal(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof StringColumnType || type instanceof TextColumnType) {
-                    StringIndex index = (StringIndex) columnIndexMap.get(column);
-                    StringColumn col1 = (StringColumn) table1Column;
-                    String value = col1.get(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof IntColumnType) {
-                    IntIndex index = (IntIndex) columnIndexMap.get(column);
-                    IntColumn col1 = (IntColumn) table1Column;
-                    int value = col1.getInt(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof LongColumnType) {
-                    LongIndex index = (LongIndex) columnIndexMap.get(column);
-                    LongColumn col1 = (LongColumn) table1Column;
-                    long value = col1.getLong(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof ShortColumnType) {
-                    ShortIndex index = (ShortIndex) columnIndexMap.get(column);
-                    ShortColumn col1 = (ShortColumn) table1Column;
-                    short value = col1.getShort(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof BooleanColumnType) {
-                    ByteIndex index = (ByteIndex) columnIndexMap.get(column);
-                    BooleanColumn col1 = (BooleanColumn) table1Column;
-                    byte value = col1.getByte(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof DoubleColumnType) {
-                    DoubleIndex index = (DoubleIndex) columnIndexMap.get(column);
-                    DoubleColumn col1 = (DoubleColumn) table1Column;
-                    double value = col1.getDouble(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof FloatColumnType) {
-                    FloatIndex index = (FloatIndex) columnIndexMap.get(column);
-                    FloatColumn col1 = (FloatColumn) table1Column;
-                    float value = col1.getFloat(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else {
-                    throw new IllegalArgumentException(
-                            "Joining is supported on numeric, string, and date-like columns. Column "
-                                    + table1Column.name() + " is of type " + table1Column.type());
-                }
+                
+                Selection rowBitMapOneCol = type.getRowBitMapOneCol(columnIndexMap, ri, column, table1Column);
+                
                 // combine Selection's into one big AND Selection
                 if (rowBitMapOneCol != null) {
                     rowBitMapMultiCol =
@@ -281,38 +201,7 @@ public class DataFrameJoiner {
 
     private Index indexFor(Table table2, String col2Name, Column<?> col) {
         ColumnType type = col.type();
-        if (type instanceof DateColumnType) {
-            return new IntIndex(table2.dateColumn(col2Name));
-        }
-        if (type instanceof DateTimeColumnType) {
-            return new LongIndex(table2.dateTimeColumn(col2Name));
-        }
-        if (type instanceof TimeColumnType) {
-            return new IntIndex(table2.timeColumn(col2Name));
-        }
-        if (type instanceof StringColumnType || type instanceof TextColumnType) {
-            return new StringIndex(table2.stringColumn(col2Name));
-        }
-        if (type instanceof IntColumnType) {
-            return new IntIndex(table2.intColumn(col2Name));
-        }
-        if (type instanceof LongColumnType) {
-            return new LongIndex(table2.longColumn(col2Name));
-        }
-        if (type instanceof ShortColumnType) {
-            return new ShortIndex(table2.shortColumn(col2Name));
-        }
-        if (type instanceof BooleanColumnType) {
-            return new ByteIndex(table2.booleanColumn(col2Name));
-        }
-        if (type instanceof DoubleColumnType) {
-            return new DoubleIndex(table2.doubleColumn(col2Name));
-        }
-        if (type instanceof FloatColumnType) {
-            return new FloatIndex(table2.floatColumn(col2Name));
-        }
-        throw new IllegalArgumentException(
-                    "Joining attempted on unsupported column type " + col.type());
+        return type.createIndex(table2, col2Name);
     }
 
     private void renameColumnsWithDuplicateNames(Table table1, Table table2, String... col2Names) {
@@ -401,64 +290,9 @@ public class DataFrameJoiner {
                 ColumnType type = table1Column.type();
                 // relies on both arrays, columns, and col2Names,
                 // having corresponding values at same index
-                String col2Name = col2Names[i];
-                Selection rowBitMapOneCol = null;
-
-                if (type instanceof DateColumnType) {
-                    IntIndex index = new IntIndex(result.dateColumn(col2Name));
-                    DateColumn col2 = (DateColumn) table2.column(col2Name);
-                    int value = col2.getIntInternal(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof DateTimeColumnType) {
-                    LongIndex index = new LongIndex(result.dateTimeColumn(col2Name));
-                    DateTimeColumn col2 = (DateTimeColumn) table2.column(col2Name);
-                    long value = col2.getLongInternal(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof TimeColumnType) {
-                    IntIndex index = new IntIndex(result.timeColumn(col2Name));
-                    TimeColumn col2 = (TimeColumn) table2.column(col2Name);
-                    int value = col2.getIntInternal(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof StringColumnType || type instanceof TextColumnType) {
-                    StringIndex index = new StringIndex(result.stringColumn(col2Name));
-                    StringColumn col2 = (StringColumn) table2.column(col2Name);
-                    String value = col2.get(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof IntColumnType) {
-                    IntIndex index = new IntIndex(result.intColumn(col2Name));
-                    IntColumn col2 = (IntColumn) table2.column(col2Name);
-                    int value = col2.getInt(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof LongColumnType) {
-                    LongIndex index = new LongIndex(result.longColumn(col2Name));
-                    LongColumn col2 = (LongColumn) table2.column(col2Name);
-                    long value = col2.getLong(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof ShortColumnType) {
-                    ShortIndex index = new ShortIndex(result.shortColumn(col2Name));
-                    ShortColumn col2 = (ShortColumn) table2.column(col2Name);
-                    short value = col2.getShort(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof BooleanColumnType) {
-                    ByteIndex index = new ByteIndex(result.booleanColumn(col2Name));
-                    BooleanColumn col2 = (BooleanColumn) table2.column(col2Name);
-                    byte value = col2.getByte(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof DoubleColumnType) {
-                    DoubleIndex index = new DoubleIndex(result.doubleColumn(col2Name));
-                    DoubleColumn col2 = (DoubleColumn) table2.column(col2Name);
-                    double value = col2.getDouble(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else if (type instanceof FloatColumnType) {
-                    FloatIndex index = new FloatIndex(result.floatColumn(col2Name));
-                    FloatColumn col2 = (FloatColumn) table2.column(col2Name);
-                    float value = col2.getFloat(ri);
-                    rowBitMapOneCol = index.get(value);
-                } else {
-                    throw new IllegalArgumentException(
-                            "Joining is supported on numeric, string, and date-like columns. Column "
-                                    + table1Column.name() + " is of type " + table1Column.type());
-                }
+                
+                Selection rowBitMapOneCol = type.getRowBitMapOneCol(table2, result, ri, col2Names[i], table1Column);
+                
                 // combine Selections into one big AND Selection
                 if (rowBitMapOneCol != null) {
                     rowBitMapMultiCol = rowBitMapMultiCol != null
@@ -476,6 +310,8 @@ public class DataFrameJoiner {
         withMissingRightJoin(result, joinColumns, table2OnlyRows);
         return result;
     }
+
+
 
     /**
      * Joins to the given tables assuming that they have a column of the name we're joining on

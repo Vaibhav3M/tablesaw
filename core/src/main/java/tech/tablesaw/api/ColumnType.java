@@ -15,7 +15,9 @@ import tech.tablesaw.columns.numbers.ShortColumnType;
 import tech.tablesaw.columns.strings.StringColumnType;
 import tech.tablesaw.columns.strings.TextColumnType;
 import tech.tablesaw.columns.times.TimeColumnType;
+import tech.tablesaw.index.Index;
 import tech.tablesaw.io.ReadOptions;
+import tech.tablesaw.selection.Selection;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,4 +71,13 @@ public interface ColumnType {
     default boolean compare(int rowNumber, Column<?> temp, Column<?> original) {
         return original.get(rowNumber).equals(temp.get(temp.size() - 1));
     }
+
+	
+	Selection getRowBitMapOneCol(Map<Column<?>, Index> columnIndexMap, int ri, Column<?> column,
+			Column<?> table1Column);
+
+	Selection getRowBitMapOneCol(Table table2, Table result, int ri, String col2Name,
+			Column<?> table1Column);
+	
+	Index createIndex(Table table2, String col2Name);
 }

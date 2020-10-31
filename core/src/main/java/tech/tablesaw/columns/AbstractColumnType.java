@@ -15,8 +15,13 @@
 package tech.tablesaw.columns;
 
 
+import java.util.Map;
+
 import com.google.common.base.Objects;
 import tech.tablesaw.api.ColumnType;
+import tech.tablesaw.api.Table;
+import tech.tablesaw.index.Index;
+import tech.tablesaw.selection.Selection;
 
 /**
  * Defines the type of data held by a {@link Column}
@@ -68,5 +73,27 @@ public abstract class AbstractColumnType implements ColumnType {
     public int hashCode() {
         return Objects.hashCode(byteSize, name, printerFriendlyName);
     }
+    
+    
+    @Override
+    public Selection getRowBitMapOneCol(Map<Column<?>, Index> columnIndexMap, int ri, Column<?> column,
+			Column<?> table1Column) {
+		throw new IllegalArgumentException(
+		        "Joining is supported on numeric, string, and date-like columns. Column "
+		                + table1Column.name() + " is of type " + table1Column.type());
+	}
+    
+    @Override
+    public Index createIndex(Table table2, String col2Name) {
+		throw new IllegalArgumentException(
+                    "Joining attempted on unsupported column type " + this);
+	}
 
+	@Override
+	public Selection getRowBitMapOneCol(Table table2, Table result, int ri, String col2Name,
+			Column<?> table1Column) {
+		throw new IllegalArgumentException(
+                "Joining is supported on numeric, string, and date-like columns. Column "
+                        + table1Column.name() + " is of type " + table1Column.type());
+	}
 }
