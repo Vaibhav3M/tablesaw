@@ -1105,6 +1105,23 @@ public class Table extends Relation implements Iterable<Row> {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void crossProduct(Table destination, Table table1, Table table2) {
+        for (int c = 0; c < table1.columnCount() + table2.columnCount(); c++) {
+            for (int r1 = 0; r1 < table1.rowCount(); r1++) {
+                for (int r2 = 0; r2 < table2.rowCount(); r2++) {
+                    if (c < table1.columnCount()) {
+                        Column t1Col = table1.column(c);
+                        destination.column(c).append(t1Col, r1);
+                    } else {
+                        Column t2Col = table2.column(c - table1.columnCount());
+                        destination.column(c).append(t2Col, r2);
+                    }
+                }
+            }
+        }
+    }
+
     public static class RowPair {
         private final Row first;
         private final Row second;

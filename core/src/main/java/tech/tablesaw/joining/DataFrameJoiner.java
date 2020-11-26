@@ -1,34 +1,59 @@
 package tech.tablesaw.joining;
 
-import tech.tablesaw.api.*;
+import com.google.common.collect.Streams;
+import tech.tablesaw.api.BooleanColumn;
+import tech.tablesaw.api.ColumnType;
+import tech.tablesaw.api.DateColumn;
+import tech.tablesaw.api.DateTimeColumn;
+import tech.tablesaw.api.DoubleColumn;
+import tech.tablesaw.api.FloatColumn;
+import tech.tablesaw.api.IntColumn;
+import tech.tablesaw.api.LongColumn;
+import tech.tablesaw.api.Row;
+import tech.tablesaw.api.ShortColumn;
+import tech.tablesaw.api.StringColumn;
+import tech.tablesaw.api.Table;
+import tech.tablesaw.api.TimeColumn;
 import tech.tablesaw.columns.Column;
 import tech.tablesaw.columns.booleans.BooleanColumnType;
 import tech.tablesaw.columns.dates.DateColumnType;
 import tech.tablesaw.columns.datetimes.DateTimeColumnType;
-import tech.tablesaw.columns.numbers.*;
+import tech.tablesaw.columns.numbers.DoubleColumnType;
+import tech.tablesaw.columns.numbers.FloatColumnType;
+import tech.tablesaw.columns.numbers.IntColumnType;
+import tech.tablesaw.columns.numbers.LongColumnType;
+import tech.tablesaw.columns.numbers.ShortColumnType;
 import tech.tablesaw.columns.strings.StringColumnType;
 import tech.tablesaw.columns.strings.TextColumnType;
 import tech.tablesaw.columns.times.TimeColumnType;
-import tech.tablesaw.index.*;
+import tech.tablesaw.index.ByteIndex;
+import tech.tablesaw.index.DoubleIndex;
+import tech.tablesaw.index.FloatIndex;
+import tech.tablesaw.index.Index;
+import tech.tablesaw.index.IntIndex;
+import tech.tablesaw.index.LongIndex;
+import tech.tablesaw.index.ShortIndex;
+import tech.tablesaw.index.StringIndex;
 import tech.tablesaw.selection.BitmapBackedSelection;
 import tech.tablesaw.selection.Selection;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DataFrameJoiner {
-    private DataFrameJoinerProduct dataFrameJoinerProduct = new DataFrameJoinerProduct();
 
-    public static final String TABLE_ALIAS = "T";
+    private static final String TABLE_ALIAS = "T";
 
     private final Table table;
     private Column<?>[] joinColumns;
     private final String[] columnNames;
+    private AtomicInteger joinTableId = new AtomicInteger(2);
 
     /**
      * Constructor.
-     *
      * @param table       The table to join on
      * @param columnNames The column names to join on
      */
@@ -56,7 +81,7 @@ public class DataFrameJoiner {
      *
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed*
-     * @param tables                    The tables to join with
+     * @param tables The tables to join with
      */
     public Table inner(boolean allowDuplicateColumnNames, Table... tables) {
         Table joined = table;
@@ -75,9 +100,9 @@ public class DataFrameJoiner {
      *                 rounding to integers.
      * @return The resulting table
      */
-    public Table inner(Table table2, String col2Name) {
-        return inner(table2, false, col2Name);
-    }
+     public Table inner(Table table2, String col2Name) {
+         return inner(table2, false, col2Name);
+     }
 
     /**
      * Joins the joiner to the table2, using the given columns for the second table and returns the resulting table
@@ -94,9 +119,9 @@ public class DataFrameJoiner {
     /**
      * Joins the joiner to the table2, using the given column for the second table and returns the resulting table
      *
-     * @param table2                    The table to join with
-     * @param col2Name                  The column to join on. If col2Name refers to a double column, the join is performed after
-     *                                  rounding to integers.
+     * @param table2   The table to join with
+     * @param col2Name The column to join on. If col2Name refers to a double column, the join is performed after
+     *                 rounding to integers.
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed*
      * @return The resulting table
@@ -108,11 +133,11 @@ public class DataFrameJoiner {
     /**
      * Joins the joiner to the table2, using the given columns for the second table and returns the resulting table
      *
-     * @param table2                    The table to join with
+     * @param table2    The table to join with
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed*
-     * @param col2Names                 The columns to join on. If a name refers to a double column, the join is performed after
-     *                                  rounding to integers.
+     * @param col2Names The columns to join on. If a name refers to a double column, the join is performed after
+     *                  rounding to integers.
      * @return The resulting table
      */
     public Table inner(Table table2, boolean allowDuplicateColumnNames, String... col2Names) {
@@ -122,12 +147,12 @@ public class DataFrameJoiner {
     /**
      * Joins the joiner to the table2, using the given columns for the second table and returns the resulting table
      *
-     * @param table2                    The table to join with
-     * @param outer                     True if this join is actually an outer join, left or right or full, otherwise false.
+     * @param table2    The table to join with
+     * @param outer     True if this join is actually an outer join, left or right or full, otherwise false.
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed*
-     * @param col2Names                 The columns to join on. If a name refers to a double column, the join is performed after
-     *                                  rounding to integers.
+     * @param col2Names The columns to join on. If a name refers to a double column, the join is performed after
+     *                  rounding to integers.
      * @return The resulting table
      */
     public Table inner(Table table2, boolean outer, boolean allowDuplicateColumnNames, String... col2Names) {
@@ -139,21 +164,21 @@ public class DataFrameJoiner {
     /**
      * Joins the joiner to the {@code table2}, using the given columns for the second table and returns the resulting table
      *
-     * @param table1          The base table to join on
-     * @param table2          The table to join with
-     * @param outer           True if this join is actually an outer join, left or right or full, otherwise false.
-     * @param allowDuplicates if {@code false} the join will fail if any columns other than the join column have the same name
-     *                        if {@code true} the join will succeed and duplicate columns are renamed*
-     * @param col2Names       The columns to join on. If a col2Name refers to a double column, the join is performed after
-     *                        rounding to integers.
+     * @param table1    The base table to join on
+     * @param table2    The table to join with
+     * @param outer     True if this join is actually an outer join, left or right or full, otherwise false.
+     * @param allowDuplicates    if {@code false} the join will fail if any columns other than the join column have the same name
+     *                           if {@code true} the join will succeed and duplicate columns are renamed*
+     * @param col2Names The columns to join on. If a col2Name refers to a double column, the join is performed after
+     *                  rounding to integers.
      * @return The resulting table
      */
     private Table joinInternal(Table table1, Table table2, boolean outer, boolean allowDuplicates, String... col2Names) {
 
         if (allowDuplicates) {
-            dataFrameJoinerProduct.renameColumnsWithDuplicateNames(table1, table2, col2Names);
+            renameColumnsWithDuplicateNames(table1, table2, col2Names);
         }
-        Table result = dataFrameJoinerProduct.emptyTableFromColumns(table1, table2, col2Names);
+        Table result = emptyTableFromColumns(table1, table2, col2Names);
         Map<Column<?>, Index> columnIndexMap = new HashMap<>();
 
         for (int i = 0; i < joinColumns.length; i++) {
@@ -238,8 +263,8 @@ public class DataFrameJoiner {
                 if (rowBitMapOneCol != null) {
                     rowBitMapMultiCol =
                             rowBitMapMultiCol != null
-                                    ? rowBitMapMultiCol.and(rowBitMapOneCol)
-                                    : rowBitMapOneCol;
+                            ? rowBitMapMultiCol.and(rowBitMapOneCol)
+                            : rowBitMapOneCol;
                 }
             }
 
@@ -248,7 +273,7 @@ public class DataFrameJoiner {
             if (outer && table2Rows.isEmpty()) {
                 withMissingLeftJoin(result, table1Rows);
             } else {
-                crossProduct(result, table1Rows, table2Rows);
+                table.crossProduct(result, table1Rows, table2Rows);
             }
         }
         return result;
@@ -287,7 +312,23 @@ public class DataFrameJoiner {
             return new FloatIndex(table2.floatColumn(col2Name));
         }
         throw new IllegalArgumentException(
-                "Joining attempted on unsupported column type " + col.type());
+                    "Joining attempted on unsupported column type " + col.type());
+    }
+
+    private void renameColumnsWithDuplicateNames(Table table1, Table table2, String... col2Names) {
+        String table2Alias = TABLE_ALIAS + joinTableId.getAndIncrement();
+        List<String> list = Arrays.asList(col2Names);
+        for (Column<?> table2Column : table2.columns()) {
+            String columnName = table2Column.name();
+            if (table1.columnNames().stream().anyMatch(columnName::equalsIgnoreCase)
+                    && !(list.stream().anyMatch(columnName::equalsIgnoreCase))) {
+                table2Column.setName(newName(table2Alias, columnName));
+            }
+        }
+    }
+
+    private String newName(String table2Alias, String columnName) {
+        return table2Alias + "." + columnName;
     }
 
     /**
@@ -305,11 +346,11 @@ public class DataFrameJoiner {
      *
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed*
-     * @param tables                    The tables to join with
+     * @param tables The tables to join with
      * @return The resulting table
      */
     public Table fullOuter(boolean allowDuplicateColumnNames, Table... tables) {
-        Table joined = table;
+       Table joined = table;
 
         for (Table currT : tables) {
             joined = fullOuter(joined, currT, allowDuplicateColumnNames, columnNames);
@@ -332,12 +373,12 @@ public class DataFrameJoiner {
     /**
      * Full outer join table1 to table2, using the given columns for the second table and returns the resulting table
      *
-     * @param table1                    The base table to join on
-     * @param table2                    The table to join with
+     * @param table1    The base table to join on
+     * @param table2    The table to join with
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed*
-     * @param col2Names                 The columns to join on. If a name refers to a double column, the join is performed after
-     *                                  rounding to integers.
+     * @param col2Names The columns to join on. If a name refers to a double column, the join is performed after
+     *                  rounding to integers.
      * @return The resulting table
      */
     public Table fullOuter(Table table1, Table table2, boolean allowDuplicateColumnNames, String... col2Names) {
@@ -451,7 +492,7 @@ public class DataFrameJoiner {
      *
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed*
-     * @param tables                    The tables to join with
+     * @param tables The tables to join with
      * @return The resulting table
      */
     public Table leftOuter(boolean allowDuplicateColumnNames, Table... tables) {
@@ -489,11 +530,11 @@ public class DataFrameJoiner {
     /**
      * Joins the joiner to the table2, using the given columns for the second table and returns the resulting table
      *
-     * @param table2                    The table to join with
+     * @param table2    The table to join with
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed
-     * @param col2Names                 The columns to join on. If a name refers to a double column, the join is performed after
-     *                                  rounding to integers.
+     * @param col2Names The columns to join on. If a name refers to a double column, the join is performed after
+     *                  rounding to integers.
      * @return The resulting table
      */
     public Table leftOuter(Table table2, boolean allowDuplicateColumnNames, String... col2Names) {
@@ -515,7 +556,7 @@ public class DataFrameJoiner {
      *
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed
-     * @param tables                    The tables to join with
+     * @param tables The tables to join with
      * @return The resulting table
      */
     public Table rightOuter(boolean allowDuplicateColumnNames, Table... tables) {
@@ -553,11 +594,11 @@ public class DataFrameJoiner {
     /**
      * Joins the joiner to the table2, using the given columns for the second table and returns the resulting table
      *
-     * @param table2                    The table to join with
+     * @param table2   The table to join with
      * @param allowDuplicateColumnNames if {@code false} the join will fail if any columns other than the join column have the same name
      *                                  if {@code true} the join will succeed and duplicate columns are renamed
-     * @param col2Names                 The columns to join on. If a name refers to a double column, the join is performed after
-     *                                  rounding to integers.
+     * @param col2Names The columns to join on. If a name refers to a double column, the join is performed after
+     *                 rounding to integers.
      * @return The resulting table
      */
 
@@ -584,21 +625,12 @@ public class DataFrameJoiner {
         return result;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private void crossProduct(Table destination, Table table1, Table table2) {
-        for (int c = 0; c < table1.columnCount() + table2.columnCount(); c++) {
-            for (int r1 = 0; r1 < table1.rowCount(); r1++) {
-                for (int r2 = 0; r2 < table2.rowCount(); r2++) {
-                    if (c < table1.columnCount()) {
-                        Column t1Col = table1.column(c);
-                        destination.column(c).append(t1Col, r1);
-                    } else {
-                        Column t2Col = table2.column(c - table1.columnCount());
-                        destination.column(c).append(t2Col, r2);
-                    }
-                }
-            }
-        }
+    private Table emptyTableFromColumns(Table table1, Table table2, String... col2Names) {
+        Column<?>[] cols = Streams.concat(
+                table1.columns().stream(),
+                table2.columns().stream().filter(c -> !Arrays.asList(col2Names).stream().anyMatch(c.name()::equalsIgnoreCase))
+                ).map(Column::emptyCopy).toArray(Column[]::new);
+        return Table.create(table1.name(), cols);
     }
 
     /**
