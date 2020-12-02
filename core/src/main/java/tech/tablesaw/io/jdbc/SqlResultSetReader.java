@@ -92,16 +92,7 @@ public class SqlResultSetReader {
         ResultSetMetaData metaData = resultSet.getMetaData();
         Table table = Table.create();
 
-        // Setup the columns and add to the table
-        for (int i = 1; i <= metaData.getColumnCount(); i++) {
-            ColumnType type = getColumnType(metaData.getColumnType(i), metaData.getScale(i), metaData.getPrecision(i));
-
-            Preconditions.checkState(type != null,
-                    "No column type found for %s as specified for column %s", metaData.getColumnType(i), metaData.getColumnName(i));
-
-            Column<?> newColumn = type.create(metaData.getColumnName(i));
-            table.addColumns(newColumn);
-        }
+        addColumns(metaData, table);
 
         // Add the rows
         while (resultSet.next()) {
@@ -124,6 +115,24 @@ public class SqlResultSetReader {
         }
         return table;
     }
+
+	/**
+	 * @param metaData
+	 * @param table
+	 * @throws SQLException
+	 */
+	private static void addColumns(ResultSetMetaData metaData, Table table) throws SQLException {
+		// Setup the columns and add to the table
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            ColumnType type = getColumnType(metaData.getColumnType(i), metaData.getScale(i), metaData.getPrecision(i));
+
+            Preconditions.checkState(type != null,
+                    "No column type found for %s as specified for column %s", metaData.getColumnType(i), metaData.getColumnName(i));
+
+            Column<?> newColumn = type.create(metaData.getColumnName(i));
+            table.addColumns(newColumn);
+        }
+	}
     
     protected static ColumnType getColumnType(int columnType, int scale, int precision) {
         ColumnType type = SQL_TYPE_TO_TABLESAW_TYPE.get(columnType);
