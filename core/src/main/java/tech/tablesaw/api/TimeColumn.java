@@ -18,6 +18,8 @@ import static tech.tablesaw.columns.DateAndTimePredicates.isMissing;
 import static tech.tablesaw.columns.DateAndTimePredicates.isNotMissing;
 
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -692,5 +694,11 @@ public class TimeColumn extends AbstractColumn<LocalTime>
     @Override
     public TimeColumn sampleX(double proportion) {
         return (TimeColumn) super.sampleX(proportion);
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getTime(i));
     }
 }

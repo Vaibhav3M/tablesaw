@@ -35,6 +35,8 @@ import tech.tablesaw.selection.Selection;
 import tech.tablesaw.sorting.comparators.DescendingLongComparator;
 
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -737,5 +739,11 @@ public class DateTimeColumn extends AbstractColumn<LocalDateTime>
     @Override
     public DateTimeColumn sampleX(double proportion) {
         return (DateTimeColumn) super.sampleX(proportion);
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getTime(i));
     }
 }

@@ -28,6 +28,8 @@ import tech.tablesaw.columns.strings.TextColumnType;
 import tech.tablesaw.selection.BitmapBackedSelection;
 import tech.tablesaw.selection.Selection;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -531,6 +533,12 @@ public class TextColumn extends AbstractColumn<String>
             textColumn.set(i, get(i));
         }
         return textColumn;
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getObject(i));
     }
 
     @Override

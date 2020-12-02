@@ -18,6 +18,8 @@ import tech.tablesaw.columns.numbers.ShortColumnType;
 import tech.tablesaw.selection.Selection;
 
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.Function;
@@ -442,6 +444,12 @@ public class ShortColumn extends NumberColumn<Short> implements CategoricalColum
     @Override
     public ShortColumn sampleX(double proportion) {
         return (ShortColumn) super.sampleX(proportion);
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getShort(i));
     }
 
     /**

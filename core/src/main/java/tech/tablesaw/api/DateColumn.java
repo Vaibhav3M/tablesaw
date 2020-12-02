@@ -34,6 +34,8 @@ import tech.tablesaw.selection.Selection;
 import tech.tablesaw.sorting.comparators.DescendingIntComparator;
 
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -700,5 +702,11 @@ public class DateColumn extends AbstractColumn<LocalDate> implements DateFilters
     @Override
     public DateColumn sampleX(double proportion) {
         return (DateColumn) super.sampleX(proportion);
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getDate(i));
     }
 }

@@ -16,6 +16,8 @@ package tech.tablesaw.columns;
 
 import static tech.tablesaw.selection.Selection.selectNRowsAtRandom;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -582,4 +584,6 @@ public interface Column<T> extends Iterable<T>, Comparator<T> {
     }
 
     StringColumn asStringColumn();
+
+    void appendRightObj(ResultSet resultSet, int i) throws SQLException;
 }

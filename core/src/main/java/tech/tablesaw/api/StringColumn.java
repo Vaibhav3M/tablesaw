@@ -31,6 +31,8 @@ import tech.tablesaw.columns.strings.StringReduceUtils;
 import tech.tablesaw.selection.BitmapBackedSelection;
 import tech.tablesaw.selection.Selection;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -619,6 +621,12 @@ public class StringColumn extends AbstractColumn<String>
     @Override
     public StringColumn asStringColumn() {
         return copy();
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getString(i));
     }
 
     public TextColumn asTextColumn() {

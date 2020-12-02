@@ -40,6 +40,8 @@ import tech.tablesaw.filtering.predicates.BytePredicate;
 import tech.tablesaw.selection.BitmapBackedSelection;
 import tech.tablesaw.selection.Selection;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -178,6 +180,12 @@ public class BooleanColumn extends AbstractColumn<Boolean> implements BooleanMap
     @Override
     public BooleanColumn sampleX(double proportion) {
         return (BooleanColumn) super.sampleX(proportion);
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getBoolean(i));
     }
 
     @Override
