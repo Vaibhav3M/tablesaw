@@ -17,6 +17,8 @@ import tech.tablesaw.columns.numbers.FloatColumnType;
 import tech.tablesaw.selection.Selection;
 
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.DoublePredicate;
@@ -427,6 +429,12 @@ public class FloatColumn extends NumberColumn<Float> {
     @Override
     public FloatColumn sampleX(double proportion) {
         return (FloatColumn) super.sampleX(proportion);
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getFloat(i));
     }
 
     /**

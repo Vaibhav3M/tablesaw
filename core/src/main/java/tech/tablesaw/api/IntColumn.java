@@ -19,6 +19,8 @@ import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.selection.Selection;
 
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.DoublePredicate;
@@ -188,6 +190,12 @@ public class IntColumn extends NumberColumn<Integer> implements CategoricalColum
     @Override
     public IntColumn emptyCopy() {
         return (IntColumn) super.emptyCopy();
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getInt(i));
     }
 
     @Override
@@ -551,4 +559,6 @@ public class IntColumn extends NumberColumn<Integer> implements CategoricalColum
         set(r, IntColumnType.missingValueIndicator());
         return this;
     }
+
+
 }

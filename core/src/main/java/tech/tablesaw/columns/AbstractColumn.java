@@ -17,6 +17,9 @@ package tech.tablesaw.columns;
 import tech.tablesaw.api.ColumnType;
 import tech.tablesaw.api.StringColumn;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
  * Partial implementation of the {@link Column} interface
  */
@@ -64,5 +67,11 @@ public abstract class AbstractColumn<T> implements Column<T> {
             sc.append(String.valueOf(value));
         }
         return sc;
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getObject(i));
     }
 }

@@ -22,6 +22,8 @@ import tech.tablesaw.selection.Selection;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -574,6 +576,12 @@ public class DoubleColumn extends NumberColumn<Double> implements NumberFillers<
     @Override
     public DoubleColumn sampleX(double proportion) {
         return (DoubleColumn) super.sampleX(proportion);
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getDouble(i));
     }
 
     /**

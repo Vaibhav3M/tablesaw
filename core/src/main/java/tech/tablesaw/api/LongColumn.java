@@ -19,6 +19,8 @@ import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.selection.Selection;
 
 import java.nio.ByteBuffer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Comparator;
@@ -48,6 +50,12 @@ public class LongColumn extends NumberColumn<Long> implements CategoricalColumn<
 
     public static LongColumn create(final String name, final long[] arr) {
         return new LongColumn(name, new LongArrayList(arr));
+    }
+
+    @Override
+    public void appendRightObj(ResultSet resultSet,
+                               int i) throws SQLException {
+        this.appendObj(resultSet.getLong(i));
     }
 
     public static LongColumn create(final String name, final int initialSize) {

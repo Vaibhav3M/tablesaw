@@ -98,19 +98,7 @@ public class SqlResultSetReader {
         while (resultSet.next()) {
             for (int i = 1; i <= metaData.getColumnCount(); i++) {
                 Column<?> column = table.column(i - 1); // subtract 1 because results sets originate at 1 not 0
-                if (column instanceof ShortColumn) {
-                    column.appendObj(resultSet.getShort(i));
-                } else if (column instanceof IntColumn) {
-                    column.appendObj(resultSet.getInt(i));
-                } else if (column instanceof LongColumn) {
-                    column.appendObj(resultSet.getLong(i));
-                } else if (column instanceof FloatColumn) {
-                    column.appendObj(resultSet.getFloat(i));
-                } else if (column instanceof DoubleColumn) {
-                    column.appendObj(resultSet.getDouble(i));
-                } else {
-                    column.appendObj(resultSet.getObject(i));
-                }
+                column.appendRightObj(resultSet, i);
             }
         }
         return table;
